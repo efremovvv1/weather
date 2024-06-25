@@ -1,0 +1,116 @@
+doctype html
+html
+  head
+    title Weathertop Dashboard
+    meta(charset='UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1, shrink-to-fit=no')
+    link(rel='stylesheet', href='https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css')
+    link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.5.0/font/bootstrap-icons.min.css')
+    link(rel='stylesheet', href='https://unpkg.com/leaflet@1.7.1/dist/leaflet.css')
+    style.
+      .card {
+        margin-bottom: 1rem;
+        position: relative;
+      }
+      .form-inline {
+        display: flex;
+        justify-content: space-between;
+      }
+      .weather-icon {
+        width: 180px;  /* увеличено в 3 раза */
+        height: 180px; /* увеличено в 3 раза */
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
+      #map {
+        height: 400px;
+        margin-bottom: 2rem;
+      }
+  body
+    nav.navbar.navbar-expand-lg.navbar-light.bg-light
+      a.navbar-brand(href='/') Weathertop
+      button.navbar-toggler(type='button', data-toggle='collapse', data-target='#navbarNav', aria-controls='navbarNav', aria-expanded='false', aria-label='Toggle navigation')
+        span.navbar-toggler-icon
+      .collapse.navbar-collapse#navbarNav
+        ul.navbar-nav
+          li.nav-item
+            a.nav-link(href='/dashboard') Dashboard
+          li.nav-item
+            a.nav-link(href='/logout') Logout
+
+    .container
+      h1.my-4 Dashboard
+      #map
+
+      .row
+        each station in stations
+          .col-md-6
+            .card
+              .card-body
+                img.weather-icon(src=station.weatherIcon, alt=station.weatherDescription)
+                h5.card-title= station.name
+                p.card-text
+                  | Lat: #{station.latitude}
+                  br
+                  | Lon: #{station.longitude}
+                  br
+                  | Wetter: #{station.weatherDescription}
+                  br
+                  | Temperatur: #{station.temperature} °C
+                  br
+                  | Min: #{station.minTemperature} °C
+                  br
+                  | Max: #{station.maxTemperature} °C
+                  br
+                  | Wind: #{station.wind} m/s (#{station.windDirectionText})
+                  br
+                  | Luftdruck: #{station.pressure} hpa
+                a(href=`/station/${station.id}`, class='btn btn-primary') 
+                  i.bi.bi-info-circle
+                button(type='button', class='btn btn-danger', onclick=`deleteStation(${station.id})`) 
+                  i.bi.bi-trash
+
+      form.form-inline.my-4(action='/addStation', method='post')
+        div.form-group
+          label(for='name') Name Wetterstation
+          input.form-control(type='text', name='name', id='name', required)
+        div.form-group
+          label(for='latitude') Breitengrad
+          input.form-control(type='text', name='latitude', id='latitude', required)
+        div.form-group
+          label(for='longitude') Längengrad
+          input.form-control(type='text', name='longitude', id='longitude', required)
+        button.btn.btn-primary(type='submit') Station hinzufügen
+
+    script(src='https://code.jquery.com/jquery-3.5.1.slim.min.js')
+    script(src='https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js')
+    script(src='https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js')
+    script(src='https://unpkg.com/leaflet@1.7.1/dist/leaflet.js')
+    script.
+      const map = L.map('map').setView([51.505, -0.09], 2);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(map);
+
+      const stations = !{JSON.stringify(stations)};
+
+      stations.forEach(station => {
+        const marker = L.marker([station.latitude, station.longitude]).addTo(map);
+        marker.bindPopup(`<b>${station.name}</b><br><a href="/station/${station.id}">Details</a>`);
+      });
+
+      function deleteStation(id) {
+        fetch(`/deleteStation/${id}`, {
+          method: 'DELETE'
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            location.reload();
+          } else {
+            alert('Error deleting station');
+          }
+        });
+      }

@@ -1,0 +1,27 @@
+doctype html
+html
+  head
+    title= station.name + " Details"
+    link(rel="stylesheet", href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css")
+  body
+    nav.navbar.navbar-expand-lg.navbar-light.bg-light
+      a.navbar-brand(href='/') Weathertop
+      a.nav-link(href='/dashboard') Dashboard
+
+    .container.mt-5
+      h1= station.name + " Details"
+      p
+        strong Weather Code:
+        |  #{station.weatherCode}
+      p
+        strong Temperature:
+        |  #{station.temperature} Grad
+      p
+        strong Wind Speed:
+        |  #{station.windSpeed} bft
+      p
+        strong Pressure:
+        |  #{station.pressure} hpa
+      p
+        strong Details:
+        |  #{station.details}

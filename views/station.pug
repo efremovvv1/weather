@@ -1,0 +1,134 @@
+doctype html
+html
+  head
+    title Station Details
+    link(rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css")
+    script(src="https://cdn.jsdelivr.net/npm/chart.js")
+    style.
+      .weather-icon {
+        width: 150px;
+        height: 150px;
+      }
+      .form-inline .form-group {
+        margin-right: 1rem;
+        flex: 1;
+      }
+      .form-inline .form-control {
+        width: 100%;
+      }
+  body
+    .container
+      h1 Station Details
+      .card.mb-4
+        .card-body
+          .d-flex.justify-content-between
+            .flex-grow-1
+              h3.card-title= station.name
+              p
+                | Lat: #{station.latitude}
+                br
+                | Lon: #{station.longitude}
+                br
+                | Wetter: #{station.weatherDescription}
+                br
+                | Temperatur: #{station.temperature} °C
+                br
+                | Min: #{station.minTemperature} °C
+                br
+                | Max: #{station.maxTemperature} °C
+                br
+                | Wind: #{station.wind} m/s (#{station.windDirectionText})
+                br
+                | Luftdruck: #{station.pressure} hpa
+            .align-self-start
+              img.weather-icon(src=station.weatherIcon, alt=station.weatherDescription)
+          .d-flex.justify-content-between.mt-3
+            a.btn.btn-info(href="/dashboard") Back to Dashboard
+            form(action=`/station/${station.id}/autoMeasure` method="POST")
+              button.btn.btn-success(type="submit") Auto Measure
+
+      h2 Readings
+      table.table
+        thead
+          tr
+            th Zeitpunk
+            th Wetter
+            th Temperatur
+            th Windgeschwindigkeit
+            th Windrichtung
+            th Luftdruck
+            th
+        tbody
+          each reading in readings
+            tr
+              td= new Date(reading.timestamp).toLocaleString()
+              td= reading.code
+              td= reading.temperature
+              td= reading.windSpeed
+              td= reading.windDirection
+              td= reading.pressure
+              td
+                form(action=`/station/${station.id}/deleteReading/${reading.id}` method="POST" class="d-inline")
+                  button.btn.btn-danger.btn-sm(type="submit") Delete
+
+      h3 Add Reading
+      form(action=`/station/${station.id}/addReading` method="POST" class="form-inline")
+        .form-group.mb-2
+          label(for="code") Code
+          input.form-control#code(type="text" name="code" required)
+        .form-group.mb-2
+          label(for="temperature") Temperatur
+          input.form-control#temperature(type="text" name="temperature" required)
+        .form-group.mb-2
+          label(for="windSpeed") Windgeschwindigkeit
+          input.form-control#windSpeed(type="text" name="windSpeed" required)
+        .form-group.mb-2
+          label(for="windDirection") Windrichtung
+          input.form-control#windDirection(type="text" name="windDirection" required)
+        .form-group.mb-2
+          label(for="pressure") Luftdruck
+          input.form-control#pressure(type="text" name="pressure" required)
+        button.btn.btn-primary.mb-2(type="submit") Add Reading
+
+      h3 Weather Forecast
+      canvas#forecastChart(width="400" height="200")
+
+    script.
+      const station = !{JSON.stringify(station)};
+      async function fetchForecast() {
+        const response = await fetch(`/api/station/${station.id}/forecast`);
+        const data = await response.json();
+
+        const ctx = document.getElementById('forecastChart').getContext('2d');
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: data.labels,
+            datasets: [
+              {
+                label: 'Temperature (°C)',
+                data: data.temperatures,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1,
+                fill: false,
+              },
+              {
+                label: 'Wind Speed (m/s)',
+                data: data.windSpeeds,
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1,
+                fill: false,
+              }
+            ]
+          },
+          options: {
+            scales: {
+              y: {
+                beginAtZero: true
+              }
+            }
+          }
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', fetchForecast);

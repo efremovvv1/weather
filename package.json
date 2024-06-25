@@ -1,0 +1,29 @@
+{
+  "name": "mi_weathertop",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.21.4",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
+    "chart.js": "^4.4.3",
+    "connect-flash": "^0.1.1",
+    "dotenv": "^9.0.2",
+    "express": "^4.17.1",
+    "express-session": "^1.18.0",
+    "leaflet": "^1.9.4",
+    "passport": "^0.7.0",
+    "passport-local": "^1.0.0",
+    "pg": "^8.7.1",
+    "pug": "^3.0.2",
+    "sequelize": "^6.37.3",
+    "session": "^0.1.0",
+    "sqlite3": "^5.1.7"
+  }
+}
